@@ -158,7 +158,7 @@ func UpdateAStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if conflict > 0 {
-		http.Error(w, "conflict with other data", http.StatusConflict)
+		http.Error(w, "conflict with other data(s) master evan", http.StatusConflict)
 		return
 	}
 
