@@ -1,0 +1,17 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/main.exe ."
+bin = "tmp/main.exe"
+
+delay = 100
+
+include_ext = ["go"]
+
+exclude_dir = ["tmp", "vendor"]
+
+kill_delay = "0s"
+
+[log]
+time = true
