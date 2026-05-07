@@ -7,6 +7,22 @@ import (
 )
 
 func SetupRoutes() *chi.Mux {
+
+	r := chi.NewRouter()
+	r.Get("/users/get-all", handlers.GetAllUsers)
+	r.Post("/users/post-user", handlers.RegisterAUser)
+
+	// pakai chi param
+	r.Put("/users/update-user/{id}", handlers.UpdateAUser)
+	r.Delete("/users/delete-user/{id}", handlers.DeleteAUser)
+
+	r.Get("/stocks/get-all", handlers.GetAllStock)
+	r.Post("/stocks/post-stock", handlers.InsertAStock)
+	r.Put("/stocks/update-stock/{id}", handlers.UpdateAStock)
+	r.Delete("/stocks/delete-stock/{id}", handlers.DeleteAStock)
+	return r
+}
+
 	// http.HandleFunc("/categories", handlers.GetCategories)
 	// http.HandleFunc("/category/create", handlers.CreateCategory)
 
@@ -32,17 +48,3 @@ func SetupRoutes() *chi.Mux {
 	// 		http.HandlerFunc(handlers.GetAllUsers),
 	// 	),
 	// )
-	r := chi.NewRouter()
-	r.Get("/users/get-all", handlers.GetAllUsers)
-	r.Post("/users/post-user", handlers.RegisterAUser)
-
-	// pakai chi param
-	r.Put("/users/update-user/{id}", handlers.UpdateAUser)
-	r.Delete("/users/delete-user/{id}", handlers.DeleteAUser)
-
-	r.Get("/stocks/get-all", handlers.GetAllStock)
-	r.Post("/stocks/post-stock", handlers.InsertAStock)
-	r.Put("/stocks/update-stock/{id}", handlers.UpdateAStock)
-	r.Delete("/stocks/delete-stock/{id}", handlers.DeleteAStock)
-	return r
-}

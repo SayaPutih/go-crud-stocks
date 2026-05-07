@@ -16,7 +16,7 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 ALTER TABLE users ADD balance DECIMAL(15,2) default 0;
-ALTER TABLE users ADD role VARCHAR(10) default 'user'; --User --Admin --Ada ga yang Kasih Stock
+ALTER TABLE users ADD role VARCHAR(10) default 'user' CHECK(role IN ('user','admin')); --User --Admin --Ada ga yang Kasih Stock
 --/login
 --/register
 --/update-user
@@ -36,6 +36,13 @@ CREATE TABLE stocks (
 --/Update-Stock (Admin)
 --/Insert-Ipo (Admin)
 --/Delete-Stock (Admin)
+
+CREATE TABLE stock_price_histories (
+    history_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    stock_id UUID REFERENCES stocks(stock_id) ON DELETE CASCADE,
+    price DECIMAL(15,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE transactions (
     transaction_id UUID PRIMARY KEY,
@@ -61,12 +68,31 @@ CREATE TABLE portfolios (
 );
 --/Upsert-Portofolio 
 
+CREATE TABLE trades(
+
+);
+
+CREATE TABLE orders(
+    order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id),
+    stock_id UUID REFERENCES stocks(stock_id),
+    type VARCHAR(10) CHECK (type IN ('BUY','SELL')),
+    
+);
+
+CREATE TABLE wallet(
+    wallet_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    user_id UUID UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    balance DECIMAL(15,2) DEFAULT 0 CHECK(balance >= 0),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE wallet_histories (
-    wallet_id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id),
+    wallet_history_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    wallet_id UUID UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     amount DECIMAL(15,2),
-    type VARCHAR(20), -- DEPOSIT / WITHDRAW / BUY / SELL
+    type VARCHAR(20) CHECK(type IN ('DEPOSIT','WITHDRAW','BUY','SELL')), -- DEPOSIT / WITHDRAW / BUY / SELL
+    references_id UUID,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 --/Insert-Balance
