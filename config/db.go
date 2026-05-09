@@ -10,7 +10,8 @@ import (
 var DB *sql.DB
 
 func ConnectDB() {
-	dsn := "host=localhost port=5432 user=postgres password=kerlyn dbname=go_products sslmode=disable"
+	dsn := "host=localhost port=5432 user=postgres password=kerlynSELECT *
+FROM stocks; dbname=go_products sslmode=disable"
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

@@ -3,48 +3,63 @@ package routes
 import (
 	"go-crud/handlers"
 
+	"go-crud/middleware"
+
 	"github.com/go-chi/chi/v5"
 )
 
 func SetupRoutes() *chi.Mux {
 
 	r := chi.NewRouter()
-	r.Get("/users/get-all", handlers.GetAllUsers)
-	r.Post("/users/post-user", handlers.RegisterAUser)
+	r.Post("/auth/register", handlers.Register)
+	r.Post("/auth/login", handlers.Login)
 
-	// pakai chi param
-	r.Put("/users/update-user/{id}", handlers.UpdateAUser)
-	r.Delete("/users/delete-user/{id}", handlers.DeleteAUser)
+	r.Route("/", func(protected chi.Router) {
+		protected.Use(middleware.AuthMiddleware)
+		protected.Get("/users/me", handlers.GetMe)
 
-	r.Get("/stocks/get-all", handlers.GetAllStock)
-	r.Post("/stocks/post-stock", handlers.InsertAStock)
-	r.Put("/stocks/update-stock/{id}", handlers.UpdateAStock)
-	r.Delete("/stocks/delete-stock/{id}", handlers.DeleteAStock)
+		protected.Route("/", func(admin chi.Router) {
+			admin.Use(middleware.AdminMiddleware)
+			admin.Post("/stocks/create", handlers.CreateStock)
+		})
+	})
+
 	return r
 }
 
-	// http.HandleFunc("/categories", handlers.GetCategories)
-	// http.HandleFunc("/category/create", handlers.CreateCategory)
+// r.Post("/users/post-user", handlers.RegisterAUser)
 
-	// // http.HandleFunc("/products", handlers.GetProducts)
-	// http.HandleFunc("/product/create", handlers.CreateProduct)
-	// // http.HandleFunc("/product/update", handlers.UpdateProduct)
-	// // http.HandleFunc("/product/delete", handlers.DeleteProduct)
+// // pakai chi param
+// r.Put("/users/update-user/{id}", handlers.UpdateAUser)
+// r.Delete("/users/delete-user/{id}", handlers.DeleteAUser)
 
-	// http.HandleFunc("/departements", handlers.GetDepartements)
-	// http.HandleFunc("/departements/create", handlers.CreateDepartement)
+// r.Get("/stocks/get-all", handlers.GetAllStock)
+// r.Post("/stocks/post-stock", handlers.InsertAStock)
+// r.Put("/stocks/update-stock/{id}", handlers.UpdateAStock)
+// r.Delete("/stocks/delete-stock/{id}", handlers.DeleteAStock)
 
-	// // http.HandleFunc("/register", handlers.Register)
-	// // http.HandleFunc("/login", handlers.Login)
+// http.HandleFunc("/categories", handlers.GetCategories)
+// http.HandleFunc("/category/create", handlers.CreateCategory)
 
-	// http.HandleFunc("/users/get-all", handlers.GetAllUsers)
-	// http.HandleFunc("/users/post-user", handlers.RegisterAUser)
-	// http.HandleFunc("/users/update-user", handlers.UpdateAUser)
-	// http.HandleFunc("/users/delete-user", handlers.DeleteAUser)
+// // http.HandleFunc("/products", handlers.GetProducts)
+// http.HandleFunc("/product/create", handlers.CreateProduct)
+// // http.HandleFunc("/product/update", handlers.UpdateProduct)
+// // http.HandleFunc("/product/delete", handlers.DeleteProduct)
 
-	// http.Handle(
-	// 	"/users",
-	// 	middleware.JWTMiddleware(
-	// 		http.HandlerFunc(handlers.GetAllUsers),
-	// 	),
-	// )
+// http.HandleFunc("/departements", handlers.GetDepartements)
+// http.HandleFunc("/departements/create", handlers.CreateDepartement)
+
+// // http.HandleFunc("/register", handlers.Register)
+// // http.HandleFunc("/login", handlers.Login)
+
+// http.HandleFunc("/users/get-all", handlers.GetAllUsers)
+// http.HandleFunc("/users/post-user", handlers.RegisterAUser)
+// http.HandleFunc("/users/update-user", handlers.UpdateAUser)
+// http.HandleFunc("/users/delete-user", handlers.DeleteAUser)
+
+// http.Handle(
+// 	"/users",
+// 	middleware.JWTMiddleware(
+// 		http.HandlerFunc(handlers.GetAllUsers),
+// 	),
+// )

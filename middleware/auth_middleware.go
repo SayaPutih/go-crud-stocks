@@ -1,43 +1,66 @@
 package middleware
 
-// import (
-// 	"context"
-// 	"net/http"
-// 	"strings"
+import (
+	"context"
+	"net/http"
+	"strings"
 
-// 	"github.com/golang-jwt/jwt/v5"
-// )
+	"github.com/golang-jwt/jwt/v5"
+)
 
-// var jwtKey = []byte("SUPER_SECRET_KEY")
+var jwtKey = []byte("SUPER_SECRET_KEY")
 
-// type contextKey string
+type Claims struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
 
-// const UserContextKey contextKey = "user"
+	jwt.RegisteredClaims
+}
 
-// func JWTMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request)){
-// 		authHeader := r.Header.Get("Authorization")
+type contextKey string
 
-// 		if authHeader == ""{
-// 			http.Error(w,"Error No Authentication Header",http.StatusUnauthorized)
-// 			return
-// 		}
+const UserIDKey contextKey = "user_id"
 
-// 		tokenString := string.Replace(authHeader,"Bearer ","",1)
-// 		token,err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{},error){
-// 			return jwtKey,nil
-// 		})
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		//Tipe Auth
+		if authHeader == "" {
+			http.Error(w, "Error No Authentication Header", http.StatusUnauthorized)
+			return
+		}
 
-// 		if err != nil || !token.Valid{
-// 			http.Error(w,"Invalid Token",http.StatusUnauthorized)
-// 		}
+		//Check ada token
+		splitted := strings.Split(authHeader, " ")
+		if len(splitted) != 2 || splitted[0] != "Bearer" {
+			http.Error(w, "Invalid Auth Format", http.StatusUnauthorized)
+			return
+		}
 
-// 		ctx := context.WithValue(
-// 			r.Context(),
-// 			USerContextKey,
-// 			token
-// 		)
+		//Parsing
+		tokenString := splitted[1]
+		claims := &Claims{}
+		token, err := jwt.ParseWithClaims(
+			tokenString,
+			claims,
+			func(token *jwt.Token) (interface{}, error) {
+				return jwtKey, nil
+			},
+		)
 
-// 		next.ServeHTTP(w, r.WithContext(ctx))
-// 	}
-// }
+		if err != nil || !token.Valid {
+			http.Error(w, "Invalid Token", http.StatusUnauthorized)
+			return
+		}
+
+		//Ini Buat apa?
+		ctx := context.WithValue(
+			r.Context(),
+			UserIDKey,
+			claims.UserID,
+		)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+	})
+}
